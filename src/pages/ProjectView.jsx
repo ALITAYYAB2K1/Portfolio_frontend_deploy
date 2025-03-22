@@ -116,13 +116,23 @@ const ProjectView = () => {
       {/* Project title */}
       <h1 className="text-3xl md:text-4xl font-bold mb-6">{project.title}</h1>
 
-      {/* Project image - Now with full width */}
-      <div className="mb-8 rounded-lg overflow-hidden shadow-lg w-full">
-        <img
-          src={project.image || "/avatarHolder.jpg"}
-          alt={project.title}
-          className="w-full h-auto max-h-[400px] object-contain"
-        />
+      {/* FIXED: Project image with improved display */}
+      <div className="mb-8 rounded-lg overflow-hidden shadow-lg w-full bg-gray-100 dark:bg-gray-800">
+        <div className="w-full h-[480px] flex items-center justify-center">
+          <img
+            src={project.image || "/avatarHolder.jpg"}
+            alt={project.title}
+            className="w-full h-full object-cover md:object-contain"
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+            }}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = "/avatarHolder.jpg";
+            }}
+          />
+        </div>
       </div>
 
       {/* Project details in grid layout */}
