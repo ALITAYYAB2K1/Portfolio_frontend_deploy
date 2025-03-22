@@ -122,7 +122,7 @@ const ProjectView = () => {
           <img
             src={project.image || "/avatarHolder.jpg"}
             alt={project.title}
-            className="w-full h-full object-cover md:object-contain"
+            className="w-full h-full object-cover"
             style={{
               maxWidth: "100%",
               maxHeight: "100%",
