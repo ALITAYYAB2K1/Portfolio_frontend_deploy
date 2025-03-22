@@ -1,13 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Github, ExternalLink, ArrowUpRight } from "lucide-react";
-import { motion } from "framer-motion";
+import { Github, ExternalLink } from "lucide-react";
 
 const Portfolio = () => {
+  const [viewAll, setViewAll] = useState(false);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -58,119 +58,106 @@ const Portfolio = () => {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-        </div>
+        <div className="text-center py-8">Loading projects...</div>
       ) : (
-        <div className="relative w-full overflow-hidden py-4 mb-10">
-          {/* First copy of projects */}
-          <ProjectsTrack projects={projects} />
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {(viewAll ? projects : projects.slice(0, 9)).map((project) => (
+              <Card
+                key={project._id}
+                className="overflow-hidden transition-all duration-300 hover:shadow-lg"
+              >
+                <Link to={`/project/${project._id}`}>
+                  <div className="overflow-hidden">
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      className="w-full h-auto aspect-video object-cover transition-transform hover:scale-105"
+                    />
+                  </div>
+                </Link>
 
-          {/* Second copy positioned after first for continuous loop */}
-          <ProjectsTrack projects={projects} offset={true} />
-        </div>
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-semibold text-lg truncate">
+                      {project.title}
+                    </h3>
+                    <Badge
+                      variant={
+                        project.deployed === "Yes"
+                          ? "success"
+                          : project.deployed === "Upcoming"
+                          ? "warning"
+                          : "destructive"
+                      }
+                      className={`${
+                        project.deployed === "Yes"
+                          ? "bg-green-100 text-green-800"
+                          : project.deployed === "Upcoming"
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {project.deployed}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {project.stack}
+                  </p>
+
+                  <div className="mt-4 flex gap-3">
+                    {project.gitRepoUrl && (
+                      <a
+                        href={project.gitRepoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button
+                          className="rounded-[30px] flex items-center gap-2 flex-row"
+                          variant="outline"
+                          size="sm"
+                        >
+                          <span>
+                            <Github className="h-4 w-4" />
+                          </span>
+                          <span>Github</span>
+                        </Button>
+                      </a>
+                    )}
+
+                    {project.deployed === "Yes" && project.projectUrl && (
+                      <a
+                        href={project.projectUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button
+                          className="rounded-[30px] flex items-center gap-2 flex-row"
+                          size="sm"
+                        >
+                          <span>
+                            <ExternalLink className="h-4 w-4" />
+                          </span>
+                          <span>Visit</span>
+                        </Button>
+                      </a>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {projects && projects.length > 9 && (
+            <div className="w-full text-center my-9">
+              <Button className="w-52" onClick={() => setViewAll(!viewAll)}>
+                {viewAll ? "Show Less" : "Show More"}
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
-  );
-};
-
-// Projects Track component
-const ProjectsTrack = ({ projects, offset = false }) => {
-  return (
-    <motion.div
-      className="flex absolute top-0 left-0"
-      style={{
-        left: offset ? "100%" : 0,
-      }}
-      animate={{
-        x: [0, "-100%"],
-      }}
-      transition={{
-        x: {
-          repeat: Infinity,
-          repeatType: "loop",
-          duration: 30,
-          ease: "linear",
-        },
-      }}
-    >
-      {projects.map((project, index) => (
-        <Card
-          key={`${project._id}-${index}`}
-          className="w-[280px] md:w-[320px] flex-shrink-0 mx-3 overflow-hidden transition-all duration-300 hover:shadow-lg"
-        >
-          <Link to={`/project/${project._id}`}>
-            <div className="relative overflow-hidden group">
-              <img
-                src={project.image}
-                alt={project.title}
-                className="w-full h-[180px] object-cover transition-transform group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <ArrowUpRight className="text-white h-8 w-8" />
-              </div>
-            </div>
-          </Link>
-
-          <CardContent className="p-4">
-            <div className="flex justify-between items-start mb-2">
-              <h3 className="font-semibold text-lg truncate">
-                {project.title}
-              </h3>
-              <Badge
-                className={`${
-                  project.deployed === "Yes"
-                    ? "bg-green-100 text-green-800"
-                    : project.deployed === "Upcoming"
-                    ? "bg-blue-100 text-blue-800"
-                    : "bg-red-100 text-red-800"
-                }`}
-              >
-                {project.deployed}
-              </Badge>
-            </div>
-            <p className="text-sm text-muted-foreground mt-1 truncate">
-              {project.stack}
-            </p>
-
-            <div className="mt-4 flex gap-3">
-              {project.gitRepoUrl && (
-                <a
-                  href={project.gitRepoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button
-                    className="rounded-[30px] flex items-center gap-2 flex-row"
-                    variant="outline"
-                    size="sm"
-                  >
-                    <Github className="h-4 w-4" />
-                    <span>Github</span>
-                  </Button>
-                </a>
-              )}
-
-              {project.deployed === "Yes" && project.projectUrl && (
-                <a
-                  href={project.projectUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button
-                    className="rounded-[30px] flex items-center gap-2 flex-row"
-                    size="sm"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    <span>Visit</span>
-                  </Button>
-                </a>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </motion.div>
   );
 };
 
