@@ -28,8 +28,9 @@ function Skills() {
     getSkills();
   }, []);
 
-  // Duplicate skills array to create continuous looping effect
-  const duplicatedSkills = [...skills, ...skills];
+  if (skills.length === 0 && !isLoading) {
+    return <div>No skills found</div>;
+  }
 
   return (
     <div className="w-full flex flex-col gap-8 sm:gap-12">
@@ -45,43 +46,57 @@ function Skills() {
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
       ) : (
-        <div className="w-full overflow-hidden py-4">
-          <motion.div
-            className="flex"
-            animate={{
-              x: ["0%", "-50%"],
-            }}
-            transition={{
-              x: {
-                duration: 20,
-                repeat: Infinity,
-                ease: "linear",
-                repeatType: "loop",
-              },
-            }}
-          >
-            {duplicatedSkills.map((element, index) => (
-              <Card
-                className="h-32 w-32 sm:h-40 sm:w-40 flex-shrink-0 mx-3 p-4 flex flex-col justify-center items-center gap-2"
-                key={`${element._id}-${index}`}
-              >
-                <div className="h-16 sm:h-20 flex items-center justify-center">
-                  <img
-                    src={element.svg}
-                    alt={element.title}
-                    className="h-full w-auto object-contain"
-                  />
-                </div>
-                <p className="text-muted-foreground text-center text-sm truncate w-full">
-                  {element.title}
-                </p>
-              </Card>
-            ))}
-          </motion.div>
+        <div className="relative w-full overflow-hidden py-4">
+          {/* First copy - starts at position 0 */}
+          <SkillsTrack skills={skills} />
+
+          {/* Second copy - positioned right after the first one to create seamless loop */}
+          <SkillsTrack skills={skills} offset={true} />
         </div>
       )}
     </div>
   );
 }
+
+// A separate component for the scrolling track
+const SkillsTrack = ({ skills, offset = false }) => {
+  return (
+    <motion.div
+      className="flex absolute top-0 left-0"
+      style={{
+        left: offset ? "100%" : 0,
+      }}
+      animate={{
+        x: [0, "-100%"],
+      }}
+      transition={{
+        x: {
+          repeat: Infinity,
+          repeatType: "loop",
+          duration: 25,
+          ease: "linear",
+        },
+      }}
+    >
+      {skills.map((element, index) => (
+        <Card
+          className="h-32 w-32 sm:h-40 sm:w-40 flex-shrink-0 mx-3 p-4 flex flex-col justify-center items-center gap-2"
+          key={`${element._id}-${index}`}
+        >
+          <div className="h-16 sm:h-20 flex items-center justify-center">
+            <img
+              src={element.svg}
+              alt={element.title}
+              className="h-full w-auto object-contain"
+            />
+          </div>
+          <p className="text-muted-foreground text-center text-sm truncate w-full">
+            {element.title}
+          </p>
+        </Card>
+      ))}
+    </motion.div>
+  );
+};
 
 export default Skills;

@@ -1,0 +1,57 @@
+.apps-carousel {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.apps-track {
+  display: flex;
+  width: fit-content;
+  animation: scrollApps 30s linear infinite;
+}
+
+.apps-track-reverse {
+  display: flex;
+  width: fit-content;
+  animation: scrollAppsReverse 35s linear infinite;
+}
+
+@keyframes scrollApps {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-50%));
+  }
+}
+
+@keyframes scrollAppsReverse {
+  0% {
+    transform: translateX(calc(-50%));
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.apps-carousel:hover .apps-track,
+.apps-carousel:hover .apps-track-reverse {
+  animation-play-state: paused;
+}
+
+.app-card {
+  width: 150px;
+  transition: all 0.3s ease;
+}
+
+@media (min-width: 640px) {
+  .app-card {
+    width: 180px;
+  }
+}
+
+.app-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
