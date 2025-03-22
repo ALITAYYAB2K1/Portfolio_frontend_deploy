@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Card } from "../../components/ui/card";
-import "./apps.css"; // We'll create this CSS file
+import { motion } from "framer-motion";
 
 function Apps() {
   const [apps, setApps] = useState([]);
@@ -30,6 +30,10 @@ function Apps() {
     getApps();
   }, []);
 
+  if (apps.length === 0 && !isLoading) {
+    return <div>No apps found</div>;
+  }
+
   return (
     <div className="w-full flex flex-col gap-8 sm:gap-12">
       <h1 className="text-tubeLight-effect text-[2rem] sm:text-[2.75rem] md:text-[3rem] lg:text-[3.8rem] tracking-[15px] dancing_text mx-auto w-fit">
@@ -41,36 +45,18 @@ function Apps() {
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
       ) : (
-        <div className="overflow-hidden relative py-4">
+        <div className="relative w-full overflow-hidden py-4">
           {/* First row - Left to Right */}
-          <div className="apps-carousel">
-            <div className="apps-track">
-              {/* First copy */}
-              {apps.map((app) => (
-                <AppCard key={`first-${app._id}`} app={app} />
-              ))}
+          <AppsTrack apps={apps} />
 
-              {/* Second copy for seamless loop */}
-              {apps.map((app) => (
-                <AppCard key={`second-${app._id}`} app={app} />
-              ))}
-            </div>
-          </div>
+          {/* Second copy positioned after first for continuous loop */}
+          <AppsTrack apps={apps} offset={true} />
 
           {/* Optional: Second row in opposite direction */}
           {apps.length > 5 && (
-            <div className="apps-carousel mt-4">
-              <div className="apps-track-reverse">
-                {/* First copy */}
-                {[...apps].reverse().map((app) => (
-                  <AppCard key={`reverse-first-${app._id}`} app={app} />
-                ))}
-
-                {/* Second copy for seamless loop */}
-                {[...apps].reverse().map((app) => (
-                  <AppCard key={`reverse-second-${app._id}`} app={app} />
-                ))}
-              </div>
+            <div className="mt-10 relative w-full overflow-hidden">
+              <ReverseAppsTrack apps={apps} />
+              <ReverseAppsTrack apps={apps} offset={true} />
             </div>
           )}
         </div>
@@ -79,13 +65,85 @@ function Apps() {
   );
 }
 
-// App Card component
-const AppCard = ({ app }) => {
+// Apps Track component (Left to Right)
+const AppsTrack = ({ apps, offset = false }) => {
   return (
-    <Card className="app-card h-fit p-7 mx-3 flex flex-col justify-center items-center gap-3 flex-shrink-0">
-      <img src={app.svg} alt={app.name} className="h-12 sm:h-24 w-auto" />
-      <p className="text-muted-foreground text-center">{app.name}</p>
-    </Card>
+    <motion.div
+      className="flex absolute top-0 left-0"
+      style={{
+        left: offset ? "100%" : 0,
+      }}
+      animate={{
+        x: [0, "-100%"],
+      }}
+      transition={{
+        x: {
+          repeat: Infinity,
+          repeatType: "loop",
+          duration: 25,
+          ease: "linear",
+        },
+      }}
+    >
+      {apps.map((app, index) => (
+        <Card
+          className="h-fit w-32 sm:w-40 p-7 flex-shrink-0 mx-3 flex flex-col justify-center items-center gap-3"
+          key={`${app._id}-${index}`}
+        >
+          <div className="h-16 sm:h-20 flex items-center justify-center">
+            <img
+              src={app.svg}
+              alt={app.name}
+              className="h-full w-auto object-contain"
+            />
+          </div>
+          <p className="text-muted-foreground text-center text-sm truncate w-full">
+            {app.name}
+          </p>
+        </Card>
+      ))}
+    </motion.div>
+  );
+};
+
+// Reverse Apps Track component (Right to Left)
+const ReverseAppsTrack = ({ apps, offset = false }) => {
+  return (
+    <motion.div
+      className="flex absolute top-0 right-0"
+      style={{
+        right: offset ? "100%" : 0,
+      }}
+      animate={{
+        x: [0, "100%"],
+      }}
+      transition={{
+        x: {
+          repeat: Infinity,
+          repeatType: "loop",
+          duration: 30,
+          ease: "linear",
+        },
+      }}
+    >
+      {[...apps].reverse().map((app, index) => (
+        <Card
+          className="h-fit w-32 sm:w-40 p-7 flex-shrink-0 mx-3 flex flex-col justify-center items-center gap-3"
+          key={`reverse-${app._id}-${index}`}
+        >
+          <div className="h-16 sm:h-20 flex items-center justify-center">
+            <img
+              src={app.svg}
+              alt={app.name}
+              className="h-full w-auto object-contain"
+            />
+          </div>
+          <p className="text-muted-foreground text-center text-sm truncate w-full">
+            {app.name}
+          </p>
+        </Card>
+      ))}
+    </motion.div>
   );
 };
 
